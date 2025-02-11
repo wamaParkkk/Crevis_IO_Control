@@ -1,11 +1,10 @@
 ﻿using CrevisModbusLibrary;
 using System;
-using System.Windows.Forms;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.IO;
-using static System.Windows.Forms.AxHost;
+using System.Windows.Forms;
 
 namespace Crevis_IO_Control
 {
@@ -24,7 +23,8 @@ namespace Crevis_IO_Control
         private string sNetworkAdapterIPInit;
         private ushort iDI_ReadCnt;
         private ushort iDO_ReadCnt;
-        private ModbusManager _manager;
+        private ModbusManager _crevisManager;
+        private Label[] status_Conn;
         private Label[] status_DI1;
         private Label[] status_DI2;
         private Button[] setting_DO1;
@@ -37,7 +37,11 @@ namespace Crevis_IO_Control
             Crevis_Module_Info_Load();
 
             // 생성 시 자동 연결 & 모니터링 시작
-            _manager = new ModbusManager(iNetworkAdapterCnt, sNetworkAdapterIPInit);
+            _crevisManager = new ModbusManager(iNetworkAdapterCnt, sNetworkAdapterIPInit);
+
+            status_Conn = new Label[2] {
+                labelConn1, labelConn2
+            };
 
             status_DI1 = new Label[iCH_MAX] {
                 label0, label1, label2, label3, label4, label5, label6, label7,
@@ -111,7 +115,7 @@ namespace Crevis_IO_Control
             try
             {
                 // Network Adapter1에 연결된 0번 Module DO 32ch setting read
-                bool[] doValues1 = _manager.ReadDO(string.Format("{0}{1}", sNetworkAdapterIPInit, "0"), 0, iDO_ReadCnt);
+                bool[] doValues1 = _crevisManager.ReadDO(string.Format("{0}{1}", sNetworkAdapterIPInit, "0"), 0, iDO_ReadCnt);
 
                 // UI 표시
                 for (int i = 0; i < iCH_MAX; i++)
@@ -129,7 +133,7 @@ namespace Crevis_IO_Control
                 }
 
                 // Network Adapter2에 연결된 0번 Module DO 32ch setting read
-                bool[] doValues2 = _manager.ReadDO(string.Format("{0}{1}", sNetworkAdapterIPInit, "1"), 0, iDO_ReadCnt);
+                bool[] doValues2 = _crevisManager.ReadDO(string.Format("{0}{1}", sNetworkAdapterIPInit, "1"), 0, iDO_ReadCnt);
 
                 // UI 표시
                 for (int i = 0; i < iCH_MAX; i++)
@@ -155,9 +159,26 @@ namespace Crevis_IO_Control
         private void timer1_Tick(object sender, EventArgs e)
         {
             try
-            {                
+            {
+                // 연결 상태
+                for (int i = 0; i <= 1; i++)
+                {
+                    if (_crevisManager._connectionStates[string.Format("{0}{1}", sNetworkAdapterIPInit, i.ToString())] == ConnectionState.Connected)
+                    {
+                        if (status_Conn[i].BackColor != Color.Lime)
+                            status_Conn[i].BackColor = Color.Lime;
+                        else
+                            status_Conn[i].BackColor = Color.Silver;
+                    }
+                    else
+                    {
+                        if (status_Conn[i].BackColor != Color.Red)
+                            status_Conn[i].BackColor = Color.Red;
+                    }
+                }
+                
                 // Network Adapter1에 연결된 0번 Module DI 32ch read
-                bool[] diValues1 = _manager.ReadDI(string.Format("{0}{1}", sNetworkAdapterIPInit, "0"), 0, iDI_ReadCnt);
+                bool[] diValues1 = _crevisManager.ReadDI(string.Format("{0}{1}", sNetworkAdapterIPInit, "0"), 0, iDI_ReadCnt);
 
                 // UI 표시
                 for (int i = 0; i < iCH_MAX; i++)
@@ -169,7 +190,7 @@ namespace Crevis_IO_Control
                 }
                 
                 // Network Adapter2에 연결된 0번 Module DI 32ch read
-                bool[] diValues2 = _manager.ReadDI(string.Format("{0}{1}", sNetworkAdapterIPInit, "1"), 0, iDI_ReadCnt);
+                bool[] diValues2 = _crevisManager.ReadDI(string.Format("{0}{1}", sNetworkAdapterIPInit, "1"), 0, iDI_ReadCnt);
 
                 // UI 표시
                 for (int i = 0; i < iCH_MAX; i++)
@@ -198,13 +219,13 @@ namespace Crevis_IO_Control
                 // Network Adapter1에 연결된 0번 모듈, 채널 ON/OFF
                 if (sTag == "0")
                 {
-                    _manager.WriteDO(string.Format("{0}{1}", sNetworkAdapterIPInit, "0"), 0, iCh, true);    // ON
+                    _crevisManager.WriteDO(string.Format("{0}{1}", sNetworkAdapterIPInit, "0"), 0, iCh, true);    // ON
                     btn.BackColor = Color.Cyan;
                     btn.Tag = "1";
                 }
                 else
                 {
-                    _manager.WriteDO(string.Format("{0}{1}", sNetworkAdapterIPInit, "0"), 0, iCh, false);   // OFF
+                    _crevisManager.WriteDO(string.Format("{0}{1}", sNetworkAdapterIPInit, "0"), 0, iCh, false);   // OFF
                     btn.BackColor = Color.Silver;
                     btn.Tag = "0";
                 }
@@ -226,13 +247,13 @@ namespace Crevis_IO_Control
                 // Network Adapter2에 연결된 0번 모듈, 채널 ON/OFF
                 if (sTag == "0")
                 {
-                    _manager.WriteDO(string.Format("{0}{1}", sNetworkAdapterIPInit, "1"), 0, iCh, true);    // ON
+                    _crevisManager.WriteDO(string.Format("{0}{1}", sNetworkAdapterIPInit, "1"), 0, iCh, true);    // ON
                     btn.BackColor = Color.Cyan;
                     btn.Tag = "1";
                 }
                 else
                 {
-                    _manager.WriteDO(string.Format("{0}{1}", sNetworkAdapterIPInit, "1"), 0, iCh, false);   // OFF
+                    _crevisManager.WriteDO(string.Format("{0}{1}", sNetworkAdapterIPInit, "1"), 0, iCh, false);   // OFF
                     btn.BackColor = Color.Silver;
                     btn.Tag = "0";
                 }
@@ -252,7 +273,7 @@ namespace Crevis_IO_Control
         private void EXIT()
         {
             timer1.Enabled = false;
-            _manager.Dispose();
+            _crevisManager.Dispose();
         }        
     }
 }

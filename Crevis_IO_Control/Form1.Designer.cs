@@ -164,6 +164,8 @@
             this.labelDO1 = new System.Windows.Forms.Label();
             this.labelDI2 = new System.Windows.Forms.Label();
             this.labelDO2 = new System.Windows.Forms.Label();
+            this.labelConn1 = new System.Windows.Forms.Label();
+            this.labelConn2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label0
@@ -1706,11 +1708,33 @@
             this.labelDO2.TabIndex = 133;
             this.labelDO2.Text = "Digital output";
             // 
+            // labelConn1
+            // 
+            this.labelConn1.BackColor = System.Drawing.Color.Silver;
+            this.labelConn1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.labelConn1.Location = new System.Drawing.Point(149, 10);
+            this.labelConn1.Name = "labelConn1";
+            this.labelConn1.Size = new System.Drawing.Size(12, 12);
+            this.labelConn1.TabIndex = 136;
+            this.labelConn1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // labelConn2
+            // 
+            this.labelConn2.BackColor = System.Drawing.Color.Silver;
+            this.labelConn2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.labelConn2.Location = new System.Drawing.Point(149, 240);
+            this.labelConn2.Name = "labelConn2";
+            this.labelConn2.Size = new System.Drawing.Size(12, 12);
+            this.labelConn2.TabIndex = 137;
+            this.labelConn2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.labelConn2);
+            this.Controls.Add(this.labelConn1);
             this.Controls.Add(this.labelDO2);
             this.Controls.Add(this.labelDI2);
             this.Controls.Add(this.labelDO1);
@@ -1989,6 +2013,8 @@
         private System.Windows.Forms.Label labelDO1;
         private System.Windows.Forms.Label labelDI2;
         private System.Windows.Forms.Label labelDO2;
+        private System.Windows.Forms.Label labelConn1;
+        private System.Windows.Forms.Label labelConn2;
     }
 }
 
